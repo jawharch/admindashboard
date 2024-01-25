@@ -1,62 +1,46 @@
-const mongoose = require('mongoose')
-const Order = require('./order.model')
-const customerSchema=mongoose.Schema(
-    {
-        firstName:{
-            type:String,
-            required:true
+const mongoose = require('mongoose');
 
-        },
-        lastName:{
-            type:String,
-            required:true
-
-    },
-        badge: {
+const customerSchema = new mongoose.Schema({
+    first: {
         type: String,
-        enum: ['Gold', 'Silver', 'Bronze'],
-        required: true,
-         },
-         orders: [
-  {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'order',
-},],
-      phoneNumber:{
-        type:Number,
-        required:true
-      },
-      address:{
-        type:String,
-        required:true
-      },
-      city:{
-        type:String,
-        required:true
-      },
-      total:{
-        type:Number,
-        default:0
-      }
+        required: true
     },
-    { timestamps: true }
+    lastName: {
+        type: String,
+        required: true
+    },
+    badge: String,
+    phoneNumber: {
+        type: String,
+        required: true
+    },
+    address: {
+        type: String,
+        required: true
+    },
+    city: {
+        type: String,
+        required: true
+    },
+    postalCode: {
+        type: Number,
+        required: true
+    }
+});
 
+module.exports = mongoose.model('Customer', customerSchema);
 
-
-)
-//total calucation for customers
+//total calculation for customers
 customerSchema.post('save', async function (doc) {
   try {
     console.log(doc)
     console.log('Calculating Total for Customer:', doc._id);
-    
 
     const customerWithOrders = await doc.model('Customer').findById(doc._id).populate('orders')
     console.log(customerWithOrders)
-    
 
     const currentTotal = doc.total || 0;
-    
+
     const calculatedTotal = customerWithOrders.orders.reduce(
       (total, order) => total + order.total,
       0
@@ -65,7 +49,7 @@ customerSchema.post('save', async function (doc) {
     console.log('Current Total:', currentTotal);
     console.log('Calculated Total:', calculatedTotal);
 
-    
+
     if (!isNaN(calculatedTotal)) {
       if (currentTotal !== calculatedTotal) {
         console.log('Updating Total:', calculatedTotal);

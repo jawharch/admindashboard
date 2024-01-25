@@ -1,49 +1,40 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
+const {OrderStatusEnum, CurrencyEnum} = require("../shared/constants");
+const ExchangeRate = require("./exchangeRate.model");
 
-const orderSchema=mongoose.Schema(
-    {
-        customer: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Customer',
-            required: true,
-          },
-          orderStatus:{
-            type: String,
-            enum: ['Prêt à envoyer', 'Livré', 'retour','Envoyé'],
-            required: true,
-           },
-          shippingAddress: {
-            type: String,
-            required: true,
-          },
-          shippingCity: {
-            type: String,
-            required: true,
-          },
-          orderDate:
-          {
-            type: Date,
-            default: Date.now,
-          },
-          total: {
-            type: Number,
-            default: 0,
-          },
-          products: [
-            {
-              type: mongoose.Schema.Types.ObjectId,
-              ref: 'product',
-            },
-          ],
+const orderSchema = new mongoose.Schema({
+  products: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Product',
+    required: true
+  }],
+  orderStatus: {
+    type: OrderStatusEnum,
+    required: true
+  },
+  orderDate: {
+    type: Date,
+    required: true
+  },
+  totalPrice: {
+    type: Number,
+    required: true,
+    value: Number,
+    currency: {
+      type: String,
+      enum: CurrencyEnum
+    }
+  },
+  customer: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Customer',
+    required: true
+  }
+});
+
+module.exports = mongoose.model('Order', orderSchema);
 
 
-
-    },
-    { timestamps: true }
-
-
-
-)
 orderSchema.post('save', async function (doc) {
   try {
     console.log('Calculating Total for Order:', doc._id);
@@ -65,14 +56,26 @@ orderSchema.post('save', async function (doc) {
     }
   } catch (error) {
     console.error('Error calculating total:', error);
-    
+
   }
 });
 
+// Calculate exchange rate for total price
+orderSchema.pre('save', async function (next) {
+  try {
+    const convertPrice = async (price) => {
+      if (CurrencyEnum.includes(price.currency)) {
+        const exchangeRate = await ExchangeRate.findOne({ fromCurrency: price.currency, toCurrency: price.currency === 'EUR' ? 'TND' : 'EUR' });
+        if (exchangeRate) {
+          price.value *= exchangeRate.rate;
+          price.currency = price.currency === 'EUR' ? 'TND' : 'EUR';
+        }
+      }
+    };
 
-
-
-
-
-const Order=mongoose.model('order',orderSchema)
-module.exports = Order
+    await convertPrice(this.totalPrice);
+    next();
+  } catch (error) {
+    next(error);
+  }
+});

@@ -1,113 +1,134 @@
 const Order = require('../models/order.model');
-const Customer = require('../models/customer.model');
 
-
-exports.createOrder = async (req, res, next) => {
+const createOrder = async (req, res) => {
   try {
-    const { orderStatus, shippingAddress, shippingCity, customerFullName } = req.body;
+    const { products, orderStatus, orderDate, totalPrice, customerId } = req.body;
 
-    
-    const [firstName, lastName] = customerFullName.split(' ');
-    const existingCustomer = await Customer.findOne({ firstName, lastName });
-
-    if (!existingCustomer) {
-      return res.status(404).json({ error: 'Customer not found' });
+    // Validators
+    // Validate if required fields are present
+    if (!products || !orderStatus || !orderDate || !totalPrice || !customerId) {
+      return res.status(400).json({ error: 'Incomplete data provided for order creation' });
     }
 
-    
+    // Validate if customer exists
+    const isValidCustomerId = mongoose.Types.ObjectId.isValid(customerId);
+    if (!isValidCustomerId) {
+      return res.status(400).json({ error: 'Invalid customer ID' });
+    }
+
     const newOrder = new Order({
-      customer: existingCustomer._id,
+      products,
       orderStatus,
-      shippingAddress,
-      shippingCity,
-      
-      
+      orderDate,
+      totalPrice,
+      customer: customerId,
     });
 
     const savedOrder = await newOrder.save();
 
-    
-    existingCustomer.orders.push(savedOrder._id);
-    await existingCustomer.save();
-  
-
-    res.status(201).json('Commande créee');
+    res.status(201).json(savedOrder);
   } catch (error) {
-    next(error);
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 };
 
-
-exports.getAllOrders = async (req, res, next) => {
+const getAllOrders = async (req, res) => {
   try {
-    const orders = await Order.find().populate('customer', 'firstName lastName').populate({path:'products', select: '-__v -createdAt -updatedAt'})
+    const orders = await Order.find().populate('customer').populate('products').exec();
+
     res.status(200).json(orders);
   } catch (error) {
-    next(error);
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+const getOrderById = async (req, res) => {
+  try {
+    const orderId = req.params.orderId;
+
+    // Validators
+    // Validate if the provided order ID is valid
+    const isValidOrderId = mongoose.Types.ObjectId.isValid(orderId);
+    if (!isValidOrderId) {
+      return res.status(400).json({ error: 'Invalid order ID' });
+    }
+
+    const order = await Order.findById(orderId).populate('customer').populate('products').exec();
+
+    // Check if the order exists
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    res.status(200).json(order);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+const deleteOrder = async (req, res) => {
+  try {
+    const orderId = req.params.orderId;
+
+    // Validators
+    // Validate if the provided order ID is valid
+    const isValidOrderId = mongoose.Types.ObjectId.isValid(orderId);
+    if (!isValidOrderId) {
+      return res.status(400).json({ error: 'Invalid order ID' });
+    }
+
+    const deletedOrder = await Order.findByIdAndDelete(orderId);
+
+    // Check if the order was found and deleted
+    if (!deletedOrder) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    res.status(200).json({ message: 'Order deleted successfully', deletedOrder });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+const updateOrder = async (req, res) => {
+  try {
+    const orderId = req.params.orderId;
+    const updatedData = req.body;
+
+    // Validators
+    // Validate if the provided order ID is valid
+    const isValidOrderId = mongoose.Types.ObjectId.isValid(orderId);
+    if (!isValidOrderId) {
+      return res.status(400).json({ error: 'Invalid order ID' });
+    }
+
+    // Validate if the update data is present
+    if (!updatedData) {
+      return res.status(400).json({ error: 'No update data provided' });
+    }
+
+    const updatedOrder = await Order.findByIdAndUpdate(orderId, updatedData, { new: true });
+
+    // Check if the order was found and updated
+    if (!updatedOrder) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    res.status(200).json({ message: 'Order updated successfully', updatedOrder });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 }
-exports.getOrderById = async (req, res, next) => {
-    try {
-      const orderId = req.params.id;
-      const order = await Order.findById(orderId).populate('customer', 'firstName lastName').populate({path:'products', select: '-__v -createdAt -updatedAt'})
-  
-      if (!order) {
-        return res.status(404).json({ error: 'Order not found' });
-      }
-  
-      res.status(200).json(order);
-    } catch (error) {
-      next(error);
-    }
-  };
 
-  exports.updateOrderById = async (req, res, next) => {
-    try {
-      const orderId = req.params.id;
-      const { orderStatus, shippingAddress, shippingCity, products} = req.body;
-      const updatedOrder = await Order.findByIdAndUpdate(
-        orderId,
-        {
-          orderStatus,
-          shippingAddress,
-          shippingCity,
-          products,
-          
-        },
-        { new: true }
-      ).populate('customer','firstName lastName')
-      if (!updatedOrder) {
-        return res.status(404).json({ error: 'Order not found' });
-      }
-  
-      res.status(200).json(updatedOrder);
-    } catch (error) {
-      next(error);
-    }
-  };
-  
-  
-  exports.deleteOrderById = async (req, res, next) => {
-    try {
-      const orderId = req.params.id;
-      const deletedOrder = await Order.findByIdAndDelete(orderId);
-  
-      
-      if (deletedOrder) {
-        const customer = await Customer.findById(deletedOrder.customer);
-        if (customer) {
-          customer.orders.pull(orderId);
-          await customer.save();
-        }
-  
-        res.status(200).json('Commande supprimée');
-      } else {
-        res.status(404).json({ error: 'Commande non trouvée' });
-      }
-    } catch (error) {
-      next(error);
-    }
-  };
-
-
-
+module.exports = {
+  createOrder,
+  getAllOrders,
+  getOrderById,
+  deleteOrder,
+  updateOrder
+};

@@ -1,56 +1,67 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
+const ExchangeRate = require('./exchangeRate.model');
+const {CurrencyEnum} = require("../shared/constants");
 
-const productSchema=mongoose.Schema(
-    {
-        name:{
-            type:String,
-            required:true},
-       
-        img:
-        {
-            type:String,
-            required:true
-        },
-        size:
-        {
-            type:String,
-            required:true
-            
-        },
-        basedPrice:
-        {
-            type:Number,
-            required:true
-        }
-        ,
-        sellPrice:
-        {
-            type:Number,
-            required:true
-        },
-        order: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'order',
-          },
-          convertedBasedPrice: {
-            type: Number,
-            required:true
-            
-        
-
-
-       
-
+const productSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true
     },
-},
-    { timestamps: true }
+    sku: {
+        type: String,
+        required: true
+    },
+    image: {
+        type: String,
+        required: true
+    },
+    size: {
+        type: String,
+        required: true
+    },
+    quantity: {
+        type: Number,
+        required: true
+    },
+    basePrice: {
+        type: Number,
+        required: true,
+        value: Number,
+        currency: {
+            type: String,
+            enum: CurrencyEnum
+        }
+    },
+    sellPrice: {
+        type: Number,
+        required: true,
+        value: Number,
+        currency: {
+            type: String,
+            enum: CurrencyEnum
+        }
+    }
+});
 
+// Calculate exchange rate for base and sell prices
+productSchema.pre('save', async function (next) {
+    try {
+        const convertPrice = async (price) => {
+            if (CurrencyEnum.includes(price.currency)) {
+                const exchangeRate = await ExchangeRate.findOne({ fromCurrency: price.currency, toCurrency: price.currency === 'EUR' ? 'TND' : 'EUR' });
+                if (exchangeRate) {
+                    price.value *= exchangeRate.rate;
+                    price.currency = price.currency === 'EUR' ? 'TND' : 'EUR';
+                }
+            }
+        };
 
+        await convertPrice(this.basePrice);
+        await convertPrice(this.sellPrice);
+        next();
+    } catch (error) {
+        next(error);
+    }
+});
 
-)
-
-
-
-
-const Product=mongoose.model('product',productSchema)
-module.exports = Product
+module.exports = mongoose.model('Product', productSchema);
