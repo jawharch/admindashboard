@@ -1,6 +1,6 @@
-const CurrencyEnum = ['EUR', 'USD'];
+const CurrencyEnum = ['EUR', 'TND'];
 const OrderStatusEnum = ['READY', 'SHIPPED', 'DELIVERED', 'RETURNED'];
-const AXIOS_API_KEY = '316db0daa67f49c9bba312947ee87deb'
+const AXIOS_API_KEY = '9b900c57d0afefa757c71872'
 
 module.exports = {
     CurrencyEnum,

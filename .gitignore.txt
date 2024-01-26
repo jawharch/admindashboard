@@ -1,0 +1,11 @@
+# Ignore log files
+*.log
+
+# Ignore build directories
+server/node_modules/
+
+# Ignore a specific file
+
+
+# Negation: Include a file even if it matches a previous pattern
+!important.txt

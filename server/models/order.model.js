@@ -72,6 +72,7 @@ orderSchema.pre('save', async function (next) {
         }
       }
     };
+    
 
     await convertPrice(this.totalPrice);
     next();

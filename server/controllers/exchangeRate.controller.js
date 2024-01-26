@@ -4,20 +4,23 @@ const {AXIOS_API_KEY} = require("../shared/constants");
 
 const updateExchangeRates = async (req, res) => {
     try {
-        const response = await axios.get(`https://openexchangerates.org/api/latest.json?app_id=${AXIOS_API_KEY}`);
-        const allExchangeRates = response.data.rates;
-        const eurExchangeRate = allExchangeRates.EUR;
+        const response = await axios.get(`https://v6.exchangerate-api.com/v6/${AXIOS_API_KEY}/latest/EUR`);
+        const allExchangeRates = response.data
+        
+        const tndExchangeRate = {TND: allExchangeRates.conversion_rates.TND};
+         console.log(tndExchangeRate)
+
 
         // Update exchange rates in the database
         await ExchangeRate.deleteMany({}); // Clear existing rates
-        await ExchangeRate.insertMany(await ExchangeRate.insertMany(Object.entries(eurExchangeRate).map(([currency, rate]) => ({
-            fromCurrency: 'USD',
+        const a=await ExchangeRate.insertMany(Object.entries(tndExchangeRate).map(([currency, rate]) => ({
+            fromCurrency: 'EUR',
             toCurrency: currency,
             rate,
             lastUpdated: new Date(),
-        }))));
+        })));
 
-        res.status(200).json({ message: 'Exchange rates updated successfully' });
+        res.status(200).json(a);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Failed to update exchange rates' });
