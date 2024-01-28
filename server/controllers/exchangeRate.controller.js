@@ -2,7 +2,7 @@ const ExchangeRate = require('../models/exchangeRate.model');
 const axios = require('axios');
 const {AXIOS_API_KEY} = require("../shared/constants");
 
-const updateExchangeRates = async (req, res) => {
+const getExchangeRates = async (req, res) => {
     try {
         const response = await axios.get(`https://v6.exchangerate-api.com/v6/${AXIOS_API_KEY}/latest/EUR`);
         const allExchangeRates = response.data
@@ -28,5 +28,5 @@ const updateExchangeRates = async (req, res) => {
 };
 
 module.exports = {
-    updateExchangeRates,
+    getExchangeRates,
 };

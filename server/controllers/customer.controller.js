@@ -1,14 +1,35 @@
 const Customer = require('../models/customer.model');
-
+const Order = require('../models/order.model');
+const mongoose=require('mongoose');
 const getAllCustomers = async (req, res) => {
     try {
-        const customers = await Customer.find()
-        res.status(200).json(customers);
+        
+        const customersWithOrders = await Customer.aggregate([
+            {
+                $lookup: {
+                    from: 'orders',
+                    localField: '_id',
+                    foreignField: 'customer',
+                    as: 'orders'
+                }
+            }
+        ]);
+        res.status(200).json(customersWithOrders);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
+const getAllCustomersWithOrders = async (req, res) => {
+    try {
+       
+  
+      res.json(customersWithOrders);
+    } catch (error) {
+      console.error('Error retrieving customers with orders:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  };
 
 const getCustomerById = async (req, res) => {
     try {
@@ -124,5 +145,6 @@ module.exports = {
     getCustomerById,
     createCustomer,
     updateCustomer,
-    deleteCustomer
+    deleteCustomer,
+    getAllCustomersWithOrders
 };

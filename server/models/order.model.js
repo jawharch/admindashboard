@@ -18,13 +18,15 @@ const orderSchema = new mongoose.Schema({
   },
   totalPrice: {
     type: Number,
-    required: true,
+    
     value: Number,
     currency: {
       type: String,
-      enum: CurrencyEnum
+      enum: CurrencyEnum,
+      default:'EUR'
     }
   },
+  shippingAddress: String,
   customer: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Customer',
@@ -80,3 +82,5 @@ orderSchema.pre('save', async function (next) {
     next(error);
   }
 });
+
+  

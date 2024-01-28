@@ -1,12 +1,13 @@
 const Order = require('../models/order.model');
+const mongoose = require('mongoose')
 
 const createOrder = async (req, res) => {
   try {
-    const { products, orderStatus, orderDate, totalPrice, customerId } = req.body;
+    const { products, orderStatus, orderDate, totalPrice, shippingAddress, customerId } = req.body;
 
     // Validators
     // Validate if required fields are present
-    if (!products || !orderStatus || !orderDate || !totalPrice || !customerId) {
+    if (!products || !orderStatus || !orderDate || !totalPrice || !shippingAddress || !customerId ) {
       return res.status(400).json({ error: 'Incomplete data provided for order creation' });
     }
 
@@ -21,6 +22,7 @@ const createOrder = async (req, res) => {
       orderStatus,
       orderDate,
       totalPrice,
+      shippingAddress,
       customer: customerId,
     });
 

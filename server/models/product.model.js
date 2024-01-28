@@ -29,7 +29,8 @@ const productSchema = new mongoose.Schema({
         value: Number,
         currency: {
             type: String,
-            enum: CurrencyEnum
+            enum: CurrencyEnum,
+            default:'EUR'
         }
     },
     sellPrice: {
@@ -38,7 +39,8 @@ const productSchema = new mongoose.Schema({
         value: Number,
         currency: {
             type: String,
-            enum: CurrencyEnum
+            enum: CurrencyEnum,
+            default:'TND'
         }
     }
 });
