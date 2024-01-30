@@ -32,7 +32,7 @@ app.use('/api',orderRouter);
 app.use('/api',productRouter);
 app.use('/api', exchangeRateRoutes);
 
-const PORT = process.env.PORT || 5000
+const PORT = process.env.PORT || 4000
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });

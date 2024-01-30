@@ -37,7 +37,10 @@ const createOrder = async (req, res) => {
 
 const getAllOrders = async (req, res) => {
   try {
-    const orders = await Order.find().populate('customer').populate('products').exec();
+    const orders = await Order.find().populate({
+      path: 'customer',
+      select: 'firstName lastName', 
+    }).populate('products').exec();
 
     res.status(200).json(orders);
   } catch (error) {
@@ -57,7 +60,10 @@ const getOrderById = async (req, res) => {
       return res.status(400).json({ error: 'Invalid order ID' });
     }
 
-    const order = await Order.findById(orderId).populate('customer').populate('products').exec();
+    const order = await Order.findById(orderId).populate('customer').populate({
+      path: 'customer',
+      select: 'firstName lastName', 
+    }).populate('products').exec();
 
     // Check if the order exists
     if (!order) {
