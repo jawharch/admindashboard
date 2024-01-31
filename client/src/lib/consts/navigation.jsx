@@ -24,16 +24,16 @@ export const DASHBOARD_SIDEBAR_LINKS = [
 	// 	icon: <HiOutlineCube />
 	// },
 	{
-		key: 'orders',
-		label: 'Orders',
-		path: '/orders',
-		icon: <HiOutlineShoppingCart />
-	},
-	{
 		key: 'customers',
 		label: 'Customers',
 		path: '/customers',
 		icon: <HiOutlineUsers />
+	},
+	{
+		key: 'orders',
+		label: 'Orders',
+		path: '/orders',
+		icon: <HiOutlineShoppingCart />
 	},
 	// {
 	// 	key: 'transactions',

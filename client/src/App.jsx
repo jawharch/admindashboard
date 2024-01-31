@@ -5,23 +5,32 @@ import { Dashboard } from './pages/Dashboard';
 import { Orders } from './pages/orders';
 import { Customers } from './pages/Customers';
 import { Layout } from './components/shared/Layout';
+import { CreateCustomer } from './pages/CreateCustomer';
+
+import {QueryClient,QueryClientProvider} from 'react-query';
 
 function App() {
+  const queryClient= new QueryClient()
  
          
   
 
   return (
+    <QueryClientProvider client={queryClient}>
     <Router>
       <Routes>
       <Route path="/" element={<Layout />}>
       <Route index path="/" element={<Dashboard />} />
         <Route path="/orders" element={<Orders />} />
         <Route path="/customers" element={<Customers />} />
+        <Route path='/create-customer' element={<CreateCustomer/>}/>
       </Route>
       </Routes>
        
     </Router>
+    
+    </QueryClientProvider>
+    
   );
   
   
