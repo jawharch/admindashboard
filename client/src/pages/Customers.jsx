@@ -10,7 +10,7 @@ export const Customers = () => {
   
   const {isLoading,data,error,isError}=useQuery('customers',() => {
 
-    return  axios.get('http://localhost:4000/api/customerS')
+    return  axios.get('http://localhost:4000/api/customers')
   }
   )
   console.log(data?.data[3])
