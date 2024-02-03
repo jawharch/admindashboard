@@ -91,12 +91,45 @@ const createCustomer = async (req, res) => {
             phoneNumber,
             address,
             city,
-            postalCode
+            postalCode,
+            
         });
 
         const savedCustomer = await newCustomer.save();
+        // const newCustomerWithOrders = await Customer.aggregate([
+        //     {
+        //         $match: {
+        //             _id: new  mongoose.Types.ObjectId(savedCustomer._id),
+        //         },
+        //     },
+        //     {
+        //         $lookup: {
+        //             from: 'orders',
+        //             localField: '_id',
+        //             foreignField: 'customer',
+        //             as: 'orders',
+        //         },
+        //     },
+        //     {
+        //         $addFields:{
+        //             ordersNumber: {
+        //                 $size: '$orders'
+        //             }
+        //         }
+        //     },
+        //     {
+        //         $project:{
+                    
+        //             orders:0,
+                    
+        //         }
+        //     }
+        // ]);
+
 
         res.status(201).json(savedCustomer);
+
+        
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Internal Server Error' });

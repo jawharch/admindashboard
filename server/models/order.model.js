@@ -32,7 +32,11 @@ const orderSchema = new mongoose.Schema({
     ref: 'Customer',
     required: true
   }
-});
+},
+{
+  timestamps: true 
+}
+);
 
 module.exports = mongoose.model('Order', orderSchema);
 

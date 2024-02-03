@@ -6,6 +6,10 @@ import { Orders } from './pages/orders';
 import { Customers } from './pages/Customers';
 import { Layout } from './components/shared/Layout';
 import { CreateCustomer } from './pages/CreateCustomer';
+import { ChakraProvider } from '@chakra-ui/react'
+
+
+        
 
 import {QueryClient,QueryClientProvider} from 'react-query';
 
@@ -16,8 +20,10 @@ function App() {
   
 
   return (
+    
     <QueryClientProvider client={queryClient}>
     <Router>
+    <ChakraProvider/>
       <Routes>
       <Route path="/" element={<Layout />}>
       <Route index path="/" element={<Dashboard />} />
@@ -26,10 +32,14 @@ function App() {
         <Route path='/create-customer' element={<CreateCustomer/>}/>
       </Route>
       </Routes>
+
+    
        
     </Router>
     
     </QueryClientProvider>
+    
+    
     
   );
   

@@ -37,10 +37,7 @@ const createOrder = async (req, res) => {
 
 const getAllOrders = async (req, res) => {
   try {
-    const orders = await Order.find().populate({
-      path: 'customer',
-      select: 'firstName lastName', 
-    }).populate('products').exec();
+    const orders = await Order.find().populate('customer products').exec();
 
     res.status(200).json(orders);
   } catch (error) {

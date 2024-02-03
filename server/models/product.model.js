@@ -43,7 +43,11 @@ const productSchema = new mongoose.Schema({
             default:'TND'
         }
     }
-});
+},
+{
+    timestamps: true 
+}
+);
 
 // Calculate exchange rate for base and sell prices
 productSchema.pre('save', async function (next) {
