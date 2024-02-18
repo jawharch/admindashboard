@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react'
-import {Box,Grid,MenuItem,Pagination,TextField,Tooltip,Typography} from '@mui/material'
+import {Box,MenuItem,TextField,Tooltip,Typography} from '@mui/material'
 import AddIcon from '@mui/icons-material/Add';
 import { DataGrid  } from '@mui/x-data-grid';
-import { getBadge, getOrderStatus } from '../lib/utils/StatusHandler';
+import { getBadge } from '../lib/utils/StatusHandler';
 import {  useMutation, useQuery } from 'react-query';
 import axios from 'axios'
 import {  useToast } from '@chakra-ui/react'
-
+import  moment from 'moment'
         
 
 export const Customers = () => {
@@ -40,6 +40,11 @@ export const Customers = () => {
     return   await axios.get('http://localhost:4000/api/customers')
   }
   )
+  function formatDate(date,format)
+  {
+    return  moment(date).format(format);
+  }
+ 
   // mutation for Customer Delete
   const { mutate:deleteCustomer } = useMutation(
     (id) => axios.delete(`http://localhost:4000/api/customers/${id}`),
@@ -53,6 +58,7 @@ export const Customers = () => {
         position:'top-right',
         isClosable: true,
       })
+
         
         
       },
@@ -183,7 +189,7 @@ export const Customers = () => {
         badge: getBadge(customer.badge),
         address: customer.address,
         city: customer.city,
-        createdAt: customer.createdAt.split('T')[0],
+        createdAt: formatDate(customer.createdAt,'DD-MM-YYYY'),
         postalCode: customer.postalCode,
       }));
   
@@ -250,12 +256,14 @@ export const Customers = () => {
     try {
       const response=await axios.post(`http://localhost:4000/api/customers`, values)
 
-      const { _id, firstName, lastName, phoneNumber, badge, address, city, createdAt, postalCode } = response.data;
+      const { _id, firstName, lastName, phoneNumber, badge, address, city, createdAt, postalCode,ordersNumber} = response.data;
+      console.log(createdAt);
+      
       
       
           setrows((prevRows) => [
          ...prevRows,
-            { id: _id, firstName, lastName, ordersNumber:0, phoneNumber, badge:getBadge(badge), address, city, createdAt:createdAt.split('T')[0], postalCode },
+            { id: _id, firstName, lastName, ordersNumber, phoneNumber, badge:getBadge(badge), address, city, createdAt:formatDate(createdAt,"DD-MM-YYYY"), postalCode },
           ]);
           console.log(rows)
           toast({
@@ -403,7 +411,7 @@ export const Customers = () => {
     {/* DELETE MODAL */}
     {opendeleteModel && (
       <div className='fixed top-0 left-0 w-full h-full bg-black bg-opacity-40 flex justify-center items-center z-50"'>
-        <div className='bg-white rounded-3xl shadow-xl p-16 min-h-200px w-2/5 mx-auto my-24'>
+        <div className='bg-white rounded-3xl shadow-xl p-16 min-h-200px w-2/5 mx-auto my-24'> 
           <div className='mx-auto max-w-300px'>
             <p className='text-black text-2xl font-semibold leading-6 text-center'>Are you sure you want to delete this task?</p>
             <div className='flex justify-center gap-6 mt-8'>

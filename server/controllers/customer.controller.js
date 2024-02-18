@@ -125,9 +125,11 @@ const createCustomer = async (req, res) => {
         //         }
         //     }
         // ]);
+        
+const savedCustomerDto={...savedCustomer._doc,ordersNumber:0};
 
+        res.status(201).json(savedCustomerDto);
 
-        res.status(201).json(savedCustomer);
 
         
     } catch (error) {

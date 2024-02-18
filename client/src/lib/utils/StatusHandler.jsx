@@ -42,7 +42,7 @@ export function getBadge(status) {
 	switch (status) {
 		case 'Gold':
 			return (
-				`<span class="capitalize py-1 px-2 rounded-md text-xs font-bold text-orange-400 bg-orange-100">
+				`<span class="capitalize py-1 px-2 rounded-md text-xs font-bold text-orange-400 bg-orange-200">
 				${status.replaceAll('_', ' ').toLowerCase()}
 			  </span>`
 			)
@@ -54,7 +54,7 @@ export function getBadge(status) {
 			)
 		case 'Bronze':
 			return (
-				`<span class="capitalize py-1 px-2 rounded-md text-xs font-bold text-orange-700 bg-orange-200">
+				`<span class="capitalize py-1 px-2 rounded-md text-xs font-bold text-orange-700 bg-orange-300">
 				${status.replaceAll('_', ' ').toLowerCase()}
 			  </span>`
 			)
